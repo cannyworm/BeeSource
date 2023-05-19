@@ -1,0 +1,24 @@
+{
+  "name": "honey-scraper",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "start": "npm run build && npm run run",
+    "ts" : "ts-node ./src/index.ts",
+    "build": "tsc --build --pretty",
+    "run": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.1.7",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "node-html-parser": "^6.1.5"
+  }
+}

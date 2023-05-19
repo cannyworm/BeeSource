@@ -6,7 +6,9 @@ const NULL = null as any
 
 function Make( root : HTMLElement ) {
 
-    function Query<Required extends boolean = true>( query : string , required? : Required) : CondNull<Required, ReturnType<typeof Make>> {
+    type ExHTMLElement = HTMLElement & { $query : typeof Query, $queryAll : typeof QueryAll }
+
+    function Query<Required extends boolean = true>( query : string , required? : Required) : CondNull<Required, ExHTMLElement> {
         const result = root.querySelector( query )
 
         if (!result) {
@@ -18,7 +20,7 @@ function Make( root : HTMLElement ) {
         return Make(result)
     }
 
-    function QueryAll<Required extends boolean = true>( query : string , required? : Required  ) : CondNull<Required, ReturnType<typeof Make>[]> {
+    function QueryAll<Required extends boolean = true>( query : string , required? : Required  ) : CondNull<Required, ExHTMLElement[]> {
         const result = root.querySelectorAll( query )
 
         if (!result) {
@@ -38,7 +40,6 @@ function Make( root : HTMLElement ) {
         "$queryAll" : { value : QueryAll },
     })
 
-    type ExHTMLElement = HTMLElement & { $query : typeof Query, $queryAll : typeof QueryAll }
 
     return root as ExHTMLElement
 }

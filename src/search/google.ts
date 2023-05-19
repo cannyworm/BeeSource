@@ -20,12 +20,15 @@ class GoogleImage implements ISearchEngine {
         })
     }
 
-    async search( image : string | Buffer ): Promise<SearchResult[]> {
+    async search( image : string ): Promise<SearchResult[]>;
+    async search( image : Buffer , fileName? : string ): Promise<SearchResult[]>;
+
+    async search( image : string | Buffer , fileName? : string ): Promise<SearchResult[]> {
 
         if ( typeof image === 'string')
             return this.searchByURL( image )
 
-        return this.searchByBuffer( image )
+        return this.searchByBuffer( image , fileName )
     }
 
     async searchByBuffer( imageBuffer : Buffer , imageName? : string ) {

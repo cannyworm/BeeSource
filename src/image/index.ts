@@ -5,7 +5,7 @@ import * as fsa from 'node:fs'
 
 type TImage = string
 
-async function compareSimiliar( src : TImage , dst : TImage) : Promise<number> {
+async function compareSimiliar( src : Buffer , dst : Buffer) : Promise<number> {
 
     return 0
 }

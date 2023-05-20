@@ -29,7 +29,7 @@ function Make( root : HTMLElement ) {
             return NULL
         }
 
-        return result.map( element => Make(element))
+        return result.map( element => Make(element) )
     }
 
     // ( root as any )["$query"] = Query

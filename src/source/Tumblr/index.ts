@@ -6,7 +6,8 @@
 
 import axios,{ AxiosInstance } from "axios";
 import { IImageSource, TImageInfo } from "../interface";
-import { TumbleResponse, TimelineBlogPost , Image} from "./type";
+import { TumbleResponse, TimelineBlogPost , ImageContent, BlogPost, Content, isImageContent} from "./type";
+import { TImage } from "../../image";
 
 class TumblrClient implements IImageSource {
 
@@ -29,18 +30,22 @@ class TumblrClient implements IImageSource {
     
 
     isSource(strURL: string): boolean {
-        
         const url = new URL(strURL)
 
         return url.hostname.endsWith("tumblr.com")
     }
 
     async solveURLs(strURLs: string[]): Promise<TImageInfo[]> {
-        return Promise.all( strURLs.map( url => this.solveURL(url)) )
+        const Images = await  Promise.all( strURLs.map( url => this.solveURL(url)) )
+
+        const ValidImages = Images.filter( image => { 
+            return image !== null
+        }) as TImageInfo[][]
+
+        return ValidImages.flat()
     }
 
-
-    async solveURL(strURL: string): Promise<TImageInfo> {
+    async solveURL(strURL: string): Promise<TImageInfo[] | null> {
 
         const url = new URL(strURL)
 
@@ -50,20 +55,13 @@ class TumblrClient implements IImageSource {
 
             // Blog url
             if (paths.length < 2)
-                return { valid : false }
+                return null 
 
             const [ blogName , postID ] = paths
 
             const post = await this.getPost(blogName, postID)
-            const images = post.data.response.timeline.elements.at(0)!.content.find(content => content.type === 'image') as Image
-            const originalMedia = images.media.find(m => m.hasOriginalDimensions === true)!
 
-            return {
-                valid : true,
-                image: originalMedia.url,
-                source: strURL,
-            }
-
+            return this.getImagesFromPost( post )
         }
         else {
             // top domain url
@@ -71,31 +69,78 @@ class TumblrClient implements IImageSource {
 
             // Blog url
             if (paths.length < 2)
-                return { valid : false }
+                return null 
 
             // What the fuck is this then 
             if (paths[0] !== 'post')
-                return { valid : false }
+                return null 
 
             const blogName = url.hostname.split('.')[0]
             const postID   = paths[1]
 
             const post = await this.getPost(blogName, postID)
-            const images = post.data.response.timeline.elements.at(0)!.content.find(content => content.type === 'image') as Image
-            const originalMedia = images.media.find(m => m.hasOriginalDimensions === true)!
 
-            return {
-                valid : true,
-                image: originalMedia.url,
-                source: strURL,
-            }
+            return this.getImagesFromPost( post )
         }
-
 
     }
 
+
+    getImageFromContent( image : ImageContent ) : TImageInfo | null {
+        const originalMedia = image.media.find(m => m.hasOriginalDimensions === true)
+        if (!originalMedia)
+            return null 
+
+        return {
+            image : originalMedia.url,
+        }
+    }
+
+    getImagesFromPost( post : BlogPost ) : TImageInfo[] {
+
+        const Images : TImageInfo[] = []
+        const ImageContents : ImageContent[] = []
+
+        if ( post.content.length > 0 ) {
+            ImageContents.push(
+                ...post.content.filter( isImageContent )
+            )
+        }
+
+        // put right meta data on trail
+        if ( post.trail?.length > 0 ) {
+
+            post.trail.forEach( trail => {
+
+                ImageContents.push(
+                    ...trail.content.filter( isImageContent )
+                )
+            });
+
+        }
+
+        // Maybe process post.content and post.trail seperately
+        ImageContents.forEach( imageContent => {
+            const image  = this.getImageFromContent( imageContent ) 
+
+            if (image === null )
+                throw Error(`Can't get images from ${post.postUrl}`)
+
+            image.source = post.postUrl
+            image.url    = post.postUrl
+
+            Images.push(image)
+        })
+
+
+        return Images
+
+    }
+
+
     async getPost( blogName : string , postID : string ) {
-        return this.axios.get<TumbleResponse<TimelineBlogPost>>(`/blog/${blogName}/posts/${postID}/permalink`)
+        const resp =  await this.axios.get<TumbleResponse<TimelineBlogPost>>(`/blog/${blogName}/posts/${postID}/permalink`)
+        return resp.data.response.timeline.elements[0]
     }
 
 }

@@ -1,3 +1,4 @@
+[Idea]
 - Cache image on image source compress image and only refetch if it's likely to be what we are looking for
 - Implement GUI
 - use gpu
@@ -6,3 +7,9 @@
 - We gonna crawl the whole internet
 - Make use of google cache
 - Make use of AMP
+
+[TODO]
+- Make so tumblr solveURL can return multiple TImageInfo
+
+[FIX]
+- Can't get shit from tumblr reblog

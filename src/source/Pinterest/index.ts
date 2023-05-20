@@ -110,7 +110,6 @@ class PinterestClient implements IImageSource {
         const images = Object.keys(pin.images).map(widthX => pin.images[widthX]).sort( (a,b) => b.width - a.width )
 
         return {
-            valid  : true,
             image  : images[0].url,
             source : pin.link
         }

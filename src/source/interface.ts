@@ -1,20 +1,15 @@
 import { TImage } from "../image";
 
-type TImageInfoInvalid = {
-    valid : false
-}
 
-type TImageInfoValid = {
-    valid : true
+
+type TImageInfo = {
     image   : string
 
     title?  : string
     source? : string
 
     url? : string
-}
-
-type TImageInfo = TImageInfoInvalid | TImageInfoValid 
+} 
 
 // Make this support batch process
 interface IImageSource<Id = string> {
@@ -22,7 +17,8 @@ interface IImageSource<Id = string> {
     readonly name : string
 
     isSource( strURL  : string )  : boolean
-
+    // It's exsit because in case we can batch process them
+    // Like Pinterest api
     solveURLs( strURLs  : string[] )  : Promise<TImageInfo[]>
     
 }

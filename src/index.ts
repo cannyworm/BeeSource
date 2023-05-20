@@ -1,6 +1,6 @@
 import axios from "axios"
 import { GoogleImage } from "./search/google"
-import { readImageFile } from "./image"
+import { TImage, readImageFile } from "./image"
 import { TumblrClient } from "./source/Tumblr"
 import { IImageSource, TImageInfo } from "./source/interface"
 import { PinterestClient } from "./source/Pinterest"
@@ -10,9 +10,7 @@ axios.defaults.headers.common = {
     "User-Agent" : "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0"
 }
 
-
 async function main() {
-
 
     try {
 
@@ -20,18 +18,26 @@ async function main() {
         //     "https://i.pinimg.com/564x/ef/95/e6/ef95e66febd6a97067ed25535c7a2f68.jpg"
         // )
 
+
         // https://sburbox.tumblr.com/post/178491654097
         // https://www.tumblr.com/sburbox/178491654097
 
+        /**
+         * Gather every search result
+         * send all the url to image sources
+         * get all them goodie
+         * send to image processing in batch
+         * profit ?
+         */
+
+
         const google = new GoogleImage()
 
-        const tumblr    = new TumblrClient()
-        const pinterest = new PinterestClient()
+        const destImage = "https://i.pinimg.com/564x/ba/53/39/ba5339553f0521e3db16561e37a28a11.jpg"
+        const searchResult = await google.search( destImage )
 
-        const destImage    = await readImageFile("test/tomco_pinterest_tumblr/image.jpg")
-        const searchResult = await google.searchByBuffer( destImage , "image.jpg")
 
-        const ImageSources = [ tumblr , pinterest ]
+        const ImageSources = [ new TumblrClient() , new PinterestClient() ]
         const sourceResults = new Map<IImageSource, SearchResult[]>()
 
         // Initialize array
@@ -46,10 +52,14 @@ async function main() {
             if ( !engine )
                 return
 
-            sourceResults.get( engine )!.push( search)
-
+            sourceResults.get( engine )!.push( search )
         })
 
+        for ( const [ engine , result ] of sourceResults ) {
+            console.log(`[${engine.name}]`, result )
+        }
+
+        const Result : TImageInfo[] = []
 
         for ( const [ engine , result ] of sourceResults ) {
 
@@ -61,16 +71,20 @@ async function main() {
                 images
             )
 
+            Result.concat( images )
         }
+
+        Result.forEach( r => console.log(r) )
+
+        
 
     } catch( err : any ) {
 
         if ( axios.isAxiosError( err )) {
-            return console.log( err.request )
+            return console.log( err )
         }
 
         console.error( err )
-
     }
 
 }

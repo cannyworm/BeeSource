@@ -1,3 +1,4 @@
+import { readImageURL } from "./image"
 import { createLogger } from "./logger"
 import { GoogleImage } from "./search/google"
 import { PinterestClient } from "./source/Pinterest"
@@ -17,16 +18,16 @@ function md5( content : string ) {
 }
 
 
-async function scrape( url : string , name? : string ) {
+async function scrape( toFindURL : string , name? : string ) {
 
-    name = name ?? md5(url)
+    name = name ?? md5(toFindURL)
 
-    logger.info(`Start search for ${url}`)
+    logger.info(`Start search for ${toFindURL}`)
 
     const searchEngine = new GoogleImage()
     const ImageSources  = [ new TumblrClient() , new PinterestClient()]
 
-    const searchResults = await searchEngine.searchByURL( url )
+    const searchResults = await searchEngine.searchByURL( toFindURL )
 
     const sourceLinks = new Map<IImageSource , string[]>
 
@@ -46,6 +47,10 @@ async function scrape( url : string , name? : string ) {
 
     for ( const [ source , links ] of sourceLinks ) {
         logger.info(`[${source.name}] Found ${links.length} links`)
+
+        if (links.length == 0)
+            continue
+
         logger.info(`[${source.name}] Resolving URLs`)
 
         const infos = await source.solveURLs( links )
@@ -60,9 +65,46 @@ async function scrape( url : string , name? : string ) {
 
     logger.info(`Saving this to ${workPath}`)
 
-    const imagesPath = path.join( workPath  , "images")
-    const originalPath = path.join( workPath, "original")
+    const imagesRootPath = path.join( workPath  , "images")
+    const originalPath   = path.join( workPath, "original")
+    const infoPath   = path.join( workPath, "info.json")
 
+    await fs.mkdir( imagesRootPath , { recursive : true })
+
+    logger.info(`Download original image to ${originalPath}`)
+    await fs.writeFile( originalPath , await readImageURL(toFindURL) , "binary")
+    logger.info(`Done !`)
+
+    logger.info(`Download images to ${imagesRootPath} and create info`)
+
+    const metaData = {
+        original : toFindURL,
+        images   : Array<{ path : string , info : TImageInfo}>( ImageInfos.length )
+    }
+
+    const downloadImagesTask = ImageInfos.map(
+            async info => {
+                const imageBuffer = await readImageURL( info.image )
+                const imageName = md5( info.image )
+                const imagePath = path.join( imagesRootPath , imageName )
+
+                metaData.images.push({
+                    path : imageName,
+                    info
+                })
+
+                await fs.writeFile( imagePath , imageBuffer , "binary" )
+            }
+    )
+
+    await Promise.all( downloadImagesTask )
+
+    logger.info(`Done !`)
+    logger.info(`Saving info`)
+
+    await fs.writeFile( infoPath , JSON.stringify( metaData , undefined , 4 ) )
+
+    logger.info(`Done !`)
 
     return 0
 }

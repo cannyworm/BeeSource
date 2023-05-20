@@ -24,4 +24,4 @@ async function cli() {
     return 0
 }
 
-cli().catch( err => logger.error( err ) )
+cli().catch( err => console.error( err ) )

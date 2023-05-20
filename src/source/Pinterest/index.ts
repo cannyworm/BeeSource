@@ -18,6 +18,7 @@ type Image = {
 type Pin = {
 
     id : string
+    error? : string
 
     images : {
         [ wX : string ] : Image
@@ -86,7 +87,7 @@ class PinterestClient implements IImageSource {
 
         const Pins = await this.getPins( uIDs )
 
-        return Pins.map( this.pinImageInfo )
+        return Pins.filter( pin => !pin.error ).map( this.pinImageInfo )
     }
 
 

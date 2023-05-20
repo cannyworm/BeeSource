@@ -13,8 +13,9 @@
 (DONE) - Make so tumblr solveURL can return multiple TImageInfo
 - Implement Logger
 - Create some uid for image
-- Finish implement cli 
+(DONE) - Finish implement cli 
 - need some thing to get image type
 
 [FIX]
 (DONE) - Can't get shit from tumblr reblog
+- There is a null in info.json in cli 

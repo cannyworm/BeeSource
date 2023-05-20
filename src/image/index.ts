@@ -18,12 +18,14 @@ async function readImageFile( filePath : string ) {
     return buffer
 }
 
-async function readImageURL( imageURL : string ) : Promise<[string, ArrayBuffer]> {
+async function readImageURL( imageURL : string ) : Promise<Buffer> {
 
     const imageReponse = await axios.get( imageURL , { responseType : "arraybuffer" })
     const contentType = imageReponse.config.headers.get("content-type") as string
 
-    return [contentType, imageReponse.data] 
+    console.log( contentType , imageReponse.data )
+
+    return imageReponse.data
 }
 
 export { readImageFile , readImageURL }

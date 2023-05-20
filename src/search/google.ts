@@ -3,7 +3,10 @@ import { ISearchEngine, SearchResult } from "./interface";
 import axios, { AxiosInstance } from "axios";
 import html from 'node-html-parser'
 import  Make from "../html";
+import { createLogger } from "../logger";
 
+
+const logger = createLogger("GoogleImage")
 
 class GoogleImage implements ISearchEngine {
 
@@ -96,25 +99,39 @@ class GoogleImage implements ISearchEngine {
     }
 
     async parseSearch( indexContent : string ) {
+
+        logger.debug("Start parsing search result")
+
         const pageURLs = this.parsePageList( indexContent )
+
+        logger.debug(`Found ${pageURLs.length} page of result`)
+        logger.debug("Fetching ...")
+
+
         const otherPages = await Promise.all(
             pageURLs.map(
                 async url => (await this.axios.get<string>(url)).data
             )
         )
 
+        logger.debug("Done !")
+
         const pageContents = [
             indexContent,
             ...otherPages
         ]
 
+        logger.debug("Parsing ...")
+
         const pageResult = pageContents.map(
             content => this.parsePageResult(content)
         ).flat()
 
+        logger.debug("Done !")
+
+        logger.debug(`Get total of ${pageResult.length} of search result`)
         return pageResult
     }
-
 
 
 }

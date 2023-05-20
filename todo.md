@@ -7,9 +7,14 @@
 - We gonna crawl the whole internet
 - Make use of google cache
 - Make use of AMP
+- Learn image processing
 
 [TODO]
-- Make so tumblr solveURL can return multiple TImageInfo
+(DONE) - Make so tumblr solveURL can return multiple TImageInfo
+- Implement Logger
+- Create some uid for image
+- Finish implement cli 
+- need some thing to get image type
 
 [FIX]
-- Can't get shit from tumblr reblog
+(DONE) - Can't get shit from tumblr reblog

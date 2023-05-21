@@ -72,7 +72,10 @@ async function scrape( toFindURL : string , name? : string ) {
     await fs.mkdir( imagesRootPath , { recursive : true })
 
     logger.info(`Download original image to ${originalPath}`)
-    await fs.writeFile( originalPath , await readImageURL(toFindURL) , "binary")
+
+    const originalImage = await readImageURL(toFindURL)
+    await fs.writeFile(  originalPath + originalImage[0] , originalImage[1]  , "binary")
+
     logger.info(`Done !`)
 
     logger.info(`Download images to ${imagesRootPath} and create info`)
@@ -84,16 +87,16 @@ async function scrape( toFindURL : string , name? : string ) {
 
     const downloadImagesTask = ImageInfos.map(
             async info => {
-                const imageBuffer = await readImageURL( info.image )
-                const imageName = md5( info.image )
-                const imagePath = path.join( imagesRootPath , imageName )
+                const imageData = await readImageURL( info.image )
+                const imageName = md5( info.image ) 
+                const imagePath = path.join( imagesRootPath , imageName + imageData[0] ) 
 
                 metaData.images.push({
                     path : imageName,
                     info
                 })
 
-                await fs.writeFile( imagePath , imageBuffer , "binary" )
+                await fs.writeFile( imagePath , imageData[1] , "binary" )
             }
     )
 

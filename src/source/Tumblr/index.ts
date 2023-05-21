@@ -27,7 +27,6 @@ class TumblrClient implements IImageSource {
         })
 
     }
-    
 
     isSource(strURL: string): boolean {
         const url = new URL(strURL)

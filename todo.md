@@ -24,5 +24,5 @@
 (DONE) - Can't get shit from tumblr reblog
 - There is a null in info.json in cli 
 - Fix old pinterest url format contain name in id (regex ?)
-    # case
+    # example
     # https://co.pinterest.com/pin/pin-de-salvatore-en-tote--810225789227177096/ 

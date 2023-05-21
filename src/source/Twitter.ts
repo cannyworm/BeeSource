@@ -1,1 +1,0 @@
-// Bet my ass I will fucking scrape the fuck out of twitter just to find all of them lord and savior whoe draw these artworks.

@@ -82,7 +82,7 @@ async function scrape( toFindURL : string , name? : string ) {
 
     const metaData = {
         original : toFindURL,
-        images   : Array<{ path : string , info : TImageInfo}>( ImageInfos.length )
+        images   : new Array<{ path : string , info : TImageInfo}>()
     }
 
     const downloadImagesTask = ImageInfos.map(
